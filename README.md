@@ -1,4 +1,4 @@
-# Spring_Stream_Video
+# Video-Streaming-Backend-SpringBoot
 
 A Java Spring Boot backend project for efficient video streaming with rate limiting and range-based streaming support.
 

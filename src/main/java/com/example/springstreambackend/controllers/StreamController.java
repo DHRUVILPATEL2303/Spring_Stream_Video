@@ -50,7 +50,6 @@ public class StreamController {
             @RequestHeader(value = "Range", required = false) String range
     ) throws InterruptedException {
 
-        Thread.sleep(1000);
         return videoService.streamVideoInRange(id, range);
     }
 

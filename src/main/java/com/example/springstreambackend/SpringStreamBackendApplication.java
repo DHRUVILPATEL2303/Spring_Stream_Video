@@ -14,10 +14,7 @@ public class SpringStreamBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpringStreamBackendApplication.class, args);
     }
-    @Bean
-    public RateLimiterRegistry rateLimiterRegistry() {
-        return RateLimiterRegistry.ofDefaults();
-    }
+
 
 
 }

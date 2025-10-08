@@ -6,22 +6,25 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.support.WindowIterator;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.stream.Stream;
 
 
 @Service
@@ -79,6 +82,7 @@ public class VideoService implements IVideoService {
         return null;
     }
 
+
     @Override
     public ResponseEntity<Resource> downloadVideoById(String id) {
         VideoModel video = getVideoById(id);
@@ -95,6 +99,54 @@ public class VideoService implements IVideoService {
                 .header(HttpHeaders.CONTENT_TYPE, video.getContentType())
                 .body(resource);
     }
+    @Override
+    public ResponseEntity<Resource> streamVideoInRange(String id, String rangeHeader) {
+        VideoModel video = getVideoById(id);
+        File file = new File(video.getFilePath());
+        if (!file.exists()) throw new RuntimeException("File not found");
+
+        String contentType = video.getContentType() != null ? video.getContentType() : "application/octet-stream";
+        long fileLength = file.length();
+
+        if (rangeHeader == null) {
+            Resource resource = new FileSystemResource(file);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, contentType)
+                    .body(resource);
+        }
+
+        try {
+            String[] ranges = rangeHeader.replace("bytes=", "").split("-");
+            long rangeStart = Long.parseLong(ranges[0]);
+            long rangeEnd = ranges.length > 1 && !ranges[1].isEmpty() ? Long.parseLong(ranges[1]) : fileLength - 1;
+            if (rangeEnd > fileLength - 1) rangeEnd = fileLength - 1;
+
+            long contentLength = rangeEnd - rangeStart + 1;
+
+            InputStream inputStream = Files.newInputStream(file.toPath());
+            inputStream.skip(rangeStart);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(contentType));
+            headers.setContentLength(contentLength);
+            headers.add("Content-Range", "bytes " + rangeStart + "-" + rangeEnd + "/" + fileLength);
+            headers.add("Accept-Ranges", "bytes");
+            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            headers.add("Pragma", "no-cache");
+            headers.add("Expires", "0");
+            headers.add("Last-Modified", String.valueOf(file.lastModified()));
+
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                    .headers(headers)
+                    .body(new InputStreamResource(inputStream));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
     @Override
     public List<VideoModel> getAllVideos() {

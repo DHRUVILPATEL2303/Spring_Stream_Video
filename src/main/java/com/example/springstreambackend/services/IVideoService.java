@@ -15,7 +15,13 @@ public interface IVideoService {
 
     VideoModel getVideoByName(String name);
 
+
+
     List<VideoModel> getAllVideos();
+
+
+
+    ResponseEntity<Resource> streamVideoInRange(String id,String range);
 
     ResponseEntity<Resource> downloadVideoById(String id);
 }

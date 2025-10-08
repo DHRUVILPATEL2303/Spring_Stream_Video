@@ -2,7 +2,9 @@ package com.example.springstreambackend.controllers;
 
 import com.example.springstreambackend.entities.VideoModel;
 import com.example.springstreambackend.services.IVideoService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Supplier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/video")
 public class StreamController {
+
+
 
     private final IVideoService videoService;
 
@@ -40,12 +44,22 @@ public class StreamController {
     }
 
     @GetMapping("/stream/range/{id}")
+    @RateLimiter(name = "videoRateLimiter", fallbackMethod = "rateLimitFallback")
     public ResponseEntity<Resource> streamVideoRange(
             @PathVariable String id,
             @RequestHeader(value = "Range", required = false) String range
-    ) {
+    ) throws InterruptedException {
+
+        Thread.sleep(1000);
         return videoService.streamVideoInRange(id, range);
     }
+
+    public ResponseEntity<Resource> rateLimitFallback(String id, String range, Throwable t) {
+        return ResponseEntity.status(429)
+                .header("Retry-After", "60")
+                .body(null);
+    }
+
 
     @GetMapping("/all")
     public List<VideoModel> getAllVideos() {

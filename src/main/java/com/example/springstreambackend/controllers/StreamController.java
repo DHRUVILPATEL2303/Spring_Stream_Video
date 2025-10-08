@@ -3,6 +3,8 @@ package com.example.springstreambackend.controllers;
 import com.example.springstreambackend.entities.VideoModel;
 import com.example.springstreambackend.services.IVideoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +33,9 @@ public class StreamController {
         return videoService.uploadVideo(videoModel, file);
     }
 
-    public  VideoModel getVideoById(String id) {
-        return videoService.getVideoById(id);
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<Resource> downloadVideo(@PathVariable String id) {
+        return videoService.downloadVideoById(id);
     }
 }

@@ -5,7 +5,11 @@ import com.example.springstreambackend.repository.VideoStreamRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.support.WindowIterator;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -73,6 +77,23 @@ public class VideoService implements IVideoService {
     @Override
     public VideoModel getVideoByName(String name) {
         return null;
+    }
+
+    @Override
+    public ResponseEntity<Resource> downloadVideoById(String id) {
+        VideoModel video = getVideoById(id);
+        File file = new File(video.getFilePath());
+
+        if (!file.exists()) {
+            throw new RuntimeException("File not found");
+        }
+
+        Resource resource = new FileSystemResource(file);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, video.getContentType())
+                .body(resource);
     }
 
     @Override

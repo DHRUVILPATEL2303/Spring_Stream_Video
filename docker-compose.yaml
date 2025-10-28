@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: spring_app
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres_db
+    networks:
+      - app_network
+
+  postgres_db:
+    image: postgres:18
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: video_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql       # ✅ Updated mount path
+    networks:
+      - app_network
+
+volumes:
+  pg_data:
+
+networks:
+  app_network:

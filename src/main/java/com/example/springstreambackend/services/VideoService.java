@@ -150,6 +150,6 @@ public class VideoService implements IVideoService {
 
     @Override
     public List<VideoModel> getAllVideos() {
-        return List.of();
+        return videoStreamRepository.findAll();
     }
 }

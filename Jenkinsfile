@@ -1,10 +1,10 @@
 pipeline {
-    agent {
-        docker {
-            image 'eclipse-temurin:17-jdk-alpine'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
+ agent {
+    docker {
+        image 'openjdk:17-jdk-slim'
+        args '-v /var/run/docker.sock:/var/run/docker.sock'
     }
+}
 
     stages {
         stage('Build JAR with Gradle') {

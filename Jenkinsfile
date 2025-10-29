@@ -1,18 +1,12 @@
 pipeline {
-    agent any
-
-    environment {
-        IMAGE_NAME = "spring_app"
-        COMPOSE_FILE = "docker-compose.yml"
+    agent {
+        docker {
+            image 'eclipse-temurin:17-jdk-alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'master', url: 'https://github.com/DHRUVILPATEL2303/Spring_Stream_Video.git'
-            }
-        }
-
         stage('Build JAR with Gradle') {
             steps {
                 echo '📦 Building Spring Boot app with Gradle...'
@@ -22,28 +16,25 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                echo '🐳 Building Docker image...'
-                sh 'docker build -t $IMAGE_NAME .'
+                echo '🐳 Building Docker Image...'
+                sh 'docker build -t spring-stream-video .'
             }
         }
 
-        stage('Deploy with Docker Compose') {
+        stage('Deploy') {
             steps {
-                echo '🚀 Starting containers using docker-compose...'
-                sh '''
-                    docker compose down || true
-                    docker compose up -d --build
-                '''
+                echo '🚀 Deploying with Docker Compose...'
+                sh 'docker-compose up -d'
             }
         }
     }
 
     post {
-        success {
-            echo "✅ Build & deployment succeeded!"
-        }
         failure {
-            echo "❌ Build or deployment failed!"
+            echo '❌ Build or deployment failed!'
+        }
+        success {
+            echo '✅ Deployment successful!'
         }
     }
 }

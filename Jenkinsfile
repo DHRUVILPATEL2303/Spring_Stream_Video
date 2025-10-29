@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/DHRUVILPATEL2303/Spring_Stream_Video.git'
+                git branch: 'master', url: 'https://github.com/DHRUVILPATEL2303/Spring_Stream_Video.git'
             }
         }
 

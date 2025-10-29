@@ -14,7 +14,7 @@ public class SpringStreamBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpringStreamBackendApplication.class, args);
     }
-//hello from intellije
+//hello from
 
 
 }

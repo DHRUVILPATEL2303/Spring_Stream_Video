@@ -17,7 +17,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo '🐳 Building Docker Image...'
-                sh 'docker build -t spring-stream-video .'
+             sh 'docker-compose down 
+                 sh 'docker-compose up -d'   
             }
         }
 

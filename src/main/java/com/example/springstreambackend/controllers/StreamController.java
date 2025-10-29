@@ -61,14 +61,14 @@ public class StreamController {
 
 
     @GetMapping("/all")
-    @RateLimiter(name = "videoRateLimiter", fallbackMethod = "rateLimitFallbackForList")
+//    @RateLimiter(name = "videoRateLimiter", fallbackMethod = "rateLimitFallbackForList")
     public List<VideoModel> getAllVideos() {
         return videoService.getAllVideos();
     }
 
-    public List<VideoModel> rateLimitFallbackForList(Throwable t) {
-        return List.of(); // or you can throw a custom exception / return empty list
-    }
+//    public List<VideoModel> rateLimitFallbackForList(Throwable t) {
+//        return List.of(); // or you can throw a custom exception / return empty list
+//    }
 
     @GetMapping("/{id}")
     public VideoModel getVideoById(@PathVariable String id) {
